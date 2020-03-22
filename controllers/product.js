@@ -219,7 +219,7 @@ exports.listBySearch = (req,res) => {
     .exec((err, data) => {
         if(err){
             return res.status(400).json({
-                message: "Categories not found"
+                error: "Products not found"
             })
         }
         res.json({
@@ -228,3 +228,11 @@ exports.listBySearch = (req,res) => {
         })
     })
 }
+
+exports.photo = (req,res, next) => {
+    if(req.product.photo.data) {
+        res.set('Content-Type', req.product.photo.contentType)
+        return res.send(req.product.photo.data)
+    }
+    next()
+} 
