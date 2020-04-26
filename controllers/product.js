@@ -6,7 +6,9 @@ const {errorHandler} = require("../helpers/dbErrorHandler");
 
 
 exports.productById = (req,res, next, id) => {
-    Product.findById(id).exec((err,product) => {
+    Product.findById(id)
+    .populate('category')
+    .exec((err,product) => {
         if(err || !product) {
             return res.status(400).json({
                 error: "product not found"
@@ -46,6 +48,7 @@ exports.create = (req,res) => {
         
         
         let product = new Product(fields)
+        console.log('product', product)
 
         if(files.photo) {
             if(files.photo.size > 1000000){
@@ -59,8 +62,9 @@ exports.create = (req,res) => {
 
         product.save((err, result) => {
             if(err){
+                console.log(err)
                 return res.status(400).json({
-                    error: errorHandler(err)
+                    error: "product could not be saved"
                 })
             }
             res.json(result)
@@ -189,7 +193,7 @@ exports.listRelated = (req,res) => {
             })
         }
 
-        res.json(products)
+        res.json(product)
     })
 }
 
@@ -209,6 +213,19 @@ exports.listBySearch = (req,res) => {
     let limit = req.body.limit ? parseInt(req.body.limit) : 100;
     let skip = parseInt(req.body.skip);
     let findArgs = {};
+
+    for(let key in req.body.filters) {
+        if(req.body.filters[key].length > 0) {
+            if(key === 'price') {
+                findArgs[key] = {
+                    $gte: req.body.filters[key][0],
+                    $lte: req.body.filters[key][1]
+                }
+            } else {
+                findArgs[key] = req.body.filters[key]
+            }
+        }
+    }
 
     Product.find(findArgs)
     .select("-photo")
@@ -236,3 +253,27 @@ exports.photo = (req,res, next) => {
     }
     next()
 } 
+
+exports.listSearch = (req,res) => {
+    //create query object to hold search value and catgeour valye
+
+    const query = {}
+
+    if(req.query.search) {
+        query.name = {$regex: req.query.search, $options: 'i'}
+        if(req.query.category && req.query.category != 'All') {
+            query.category = req.query.category
+        }
+
+        //find product based on query object withb2
+
+        Product.find(query, (err , products) => {
+            if(err) {
+                return res.status(400).json({
+                    error: errorHandler(err)
+                })
+            }
+            res.json(products)
+        }).select('-photo')
+    }
+}

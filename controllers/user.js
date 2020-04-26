@@ -15,7 +15,7 @@ exports.userById = (req,res, next, id) => {
 
 exports.read = (req,res) => {
     req.profile.hashed_password = undefined
-    req.profile.salt - undefined
+    req.profile.salt = undefined
 
     return res.json(req.profile)
 }
@@ -24,16 +24,18 @@ exports.update = (req,res) => {
     User.findOneAndUpdate(
         {_id: req.profile._id},
          {$set: req.body}, 
-         {new: true}),
+         {new: true},
          (err , user) => {
             if(err) {
                 return res.status(400).json({
                     error : 'You are not Authorized to perform this action'
                 })
             }
-            user.profile.hashed_password = undefined
-            user.profile.salt - undefined
+            user.hashed_password = undefined
+            user.salt = undefined
 
                 res.json(user)
         }
-}
+
+        )
+};
