@@ -5,6 +5,8 @@ import Card from '../core/Card';
 import {Link} from "react-router-dom"
 import { isAuthenticated} from '../auth';
 import { getBraintreeClientToken } from "./apiCore";
+import 'braintree-web'
+import DropIn from 'braintree-web-drop-in-react'
 
 
 
@@ -40,13 +42,45 @@ const Checkout = ({products}) => {
 
     const showCheckout = () => {
         return (
-            isAuthenticated() ? (<button className="btn btn-success">Checkout</button>) : (
+        isAuthenticated() ? (<div>{showDropIn()}</div>) : (
                 <Link to="/signin"><button className="btn btn-primary">Sign in To Checkout</button></Link>
             )
         )
     }
 
-   
+    const buy = () => {
+
+        let nonce;
+
+        let getNonce = data.instance.requestPaymentMethod()
+        .then(data => {
+            console.log(data)
+            nonce = data.nonce
+
+            console.log('send nonce and total to process', nonce , getTotal(products))
+
+        })
+        .catch(error => {
+            console.log('drop in error')
+            setData({ ...data, error: error.message})
+        })
+    }
+
+   const showDropIn = () => {
+       return (
+        <div>
+        {data.clientToken !== null && products.length > 0 ? (
+            <div>
+                <DropIn options={{
+                    authorization: data.clientToken
+                }} onInstance={instance => (data.instance = instance)}/>
+                <button onClick={buy}className="btn btn-primary">Pay</button>
+            </div>
+        ) : null}
+    </div>
+       )
+   }
+
 return (
   
     <div>
