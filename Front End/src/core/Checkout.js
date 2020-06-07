@@ -3,7 +3,7 @@ import { emptyCart} from './cartHelpers';
 
 import {Link} from "react-router-dom"
 import { isAuthenticated} from '../auth';
-import { getBraintreeClientToken, processPayment } from "./apiCore";
+import { getBraintreeClientToken, processPayment, createOrder } from "./apiCore";
 import 'braintree-web'
 import DropIn from 'braintree-web-drop-in-react'
 
@@ -65,6 +65,15 @@ const Checkout = ({products}) => {
             processPayment(userId, token, paymentData)
             .then(response => {
                 console.log(response)
+                const createOrderData = {
+                    products: products,
+                    transaction_id: response.transaction.id,
+                    amount: response.transaction.amount,
+                    address: data.address
+                }
+
+                createOrder(userId, token, createOrderData)
+
                 setData({...data, success: response.success})
                 emptyCart(() => {
                     console.log('payment success and emptied cart')
@@ -91,6 +100,12 @@ const Checkout = ({products}) => {
         <div onBlur={() => setData({...data, error: ''})}>
         {data.clientToken !== null && products.length > 0 ? (
             <div>
+                <div className="form-group mb-3">
+                    <label className="text-muted">Delivery address:</label>
+                    <textarea onChange={handleAddress} className="form-control" value={data.address} placeholder="Type delivery address here ..">
+
+                    </textarea>
+                </div>
                 <DropIn options={{
                     authorization: data.clientToken,
                     paypal: {
@@ -103,7 +118,9 @@ const Checkout = ({products}) => {
     </div>
        )
    }
-
+   const handleAddress = event => {
+       setData({...data, address: event.target.value})
+   }
    const showError = error => (
     
         <div className="alert alert-danger" style={{display: error ? "": 'none'}}>
