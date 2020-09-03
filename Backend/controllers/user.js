@@ -39,7 +39,7 @@ exports.update = (req,res) => {
 
         )
 };
-exports.addOrderToUserHistory = (req,res) => {
+exports.addOrderToUserHistory = (req,res, next) => {
     let history = [];
 
     req.body.order.products.forEach((item) => {

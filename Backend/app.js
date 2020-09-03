@@ -20,7 +20,8 @@ const orderRoutes = require("./routes/order")
 //db
 mongoose.connect(process.env.DATABASE, {
     useNewUrlParser: true,
-    useCreateIndex:true
+    useCreateIndex:true,
+    useFindAndModify:false
 }) .then(() => console.log('database connected'))
 
 //middlewares
