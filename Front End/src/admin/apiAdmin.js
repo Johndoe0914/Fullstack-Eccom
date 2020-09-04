@@ -1,4 +1,6 @@
 import { API } from "../config";
+// import user from "../../../Backend/models/user";
+
 
 export const createCategory = (userId, token, category) => {
     // console.log("user:", user)
@@ -103,6 +105,83 @@ export const createCategory = (userId, token, category) => {
         Authorization: `Bearer ${token}`
       },
      body: JSON.stringify({status, orderId})
+     })
+     .then(response => {
+       return response.json()
+     })
+     .catch(err => {
+       console.log(err)
+     })
+
+  }
+/**
+to perform crud pn product
+get all products 
+get single product
+update single product
+delete single product
+ */
+  export const  getProducts = (userId, token) => {
+     return fetch(`${API}/products?limit=100`, {
+      method: "GET",
+       
+     })
+     .then(response => {
+       return response.json()
+     })
+     .catch(err => {
+       console.log(err)
+     })
+
+  }
+
+  export const deleteProduct = (userId,productId, token) => {
+    // console.log("user:", user)
+     return fetch(`${API}/product/${productId}/${userId}`, {
+       method: "DELETE",
+       headers: {
+         Accept: 'application/json',
+         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+     })
+     .then(response => {
+       return response.json()
+     })
+     .catch(err => {
+       console.log(err)
+     })
+
+  }
+
+  export const getProduct = (productId, token) => {
+    // console.log("user:", user)
+     return fetch(`${API}/product/${productId}`, {
+       method: "GET",
+       headers: {
+         Accept: 'application/json',
+         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+     })
+     .then(response => {
+       return response.json()
+     })
+     .catch(err => {
+       console.log(err)
+     })
+
+  }
+
+  export const updateProduct = (productId, userId, token, product) => {
+    // console.log("user:", user)
+     return fetch(`${API}/product/${productId}/${userId}`, {
+       method: "PUT",
+       headers: {
+         Accept: 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: product
      })
      .then(response => {
        return response.json()
